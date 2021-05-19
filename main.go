@@ -1,10 +1,12 @@
 package main
 
 import (
+	"time"
+
 	"github.com/cemoss17/go-chess/externalboard"
-	"github.com/notnil/chess"
 )
 
 func main() {
-	externalboard.AlphaBetaGame(chess.White, 5)
+	it := externalboard.NewIterativeDeepener()
+	it.FastGame(true, 25, time.Second*2)
 }

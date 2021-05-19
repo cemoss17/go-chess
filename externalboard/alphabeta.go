@@ -4,32 +4,34 @@ import (
 	"github.com/notnil/chess"
 )
 
-func (p *Position) alphabeta(depth, alpha, beta int) (*Position, int) {
+func (p *Position) alphabetaMoveHashed(depth, alpha, beta int) (*chess.Move, int) {
 	if depth == 0 {
-		return p, p.Score()
+		return nil, p.Score()
 	}
-	var posToReturn *Position
-	var alphaBetaPosition *Position
+	var moveToReturn *chess.Move
 	var abscore int
 	score := p.MAX()
-	moves := p.ValidMoves()
+	moves, ok := p.ValidMovesHash()
 	if len(moves) == 0 {
-		return p, p.Score()
+		return nil, p.Score()
 	}
-	sortMoves(moves)
+	if !ok {
+		sortMoves(moves)
+		validMovesMap[p.Hash()] = moves
+	}
 	for _, m := range moves {
 		nextPos := &Position{p.Update(m)}
-		alphaBetaPosition, abscore = nextPos.alphabeta(depth-1, alpha, beta)
-		if nextPos.better(abscore, score) {
-			posToReturn = alphaBetaPosition
+		_, abscore = nextPos.alphabetaMoveHashed(depth-1, alpha, beta)
+		if p.better(abscore, score) {
+			moveToReturn = m
 			score = abscore
 		}
-		if nextPos.Turn() == chess.White {
-			if nextPos.better(score, alpha) {
+		if p.Turn() == chess.White {
+			if p.better(score, alpha) {
 				alpha = score
 			}
 		} else {
-			if nextPos.better(score, beta) {
+			if p.better(score, beta) {
 				beta = score
 			}
 		}
@@ -37,7 +39,7 @@ func (p *Position) alphabeta(depth, alpha, beta int) (*Position, int) {
 			break
 		}
 	}
-	return posToReturn, score
+	return moveToReturn, score
 }
 
 func (p *Position) alphabetaMove(depth, alpha, beta int) (*chess.Move, int) {
@@ -55,16 +57,16 @@ func (p *Position) alphabetaMove(depth, alpha, beta int) (*chess.Move, int) {
 	for _, m := range moves {
 		nextPos := &Position{p.Update(m)}
 		_, abscore = nextPos.alphabetaMove(depth-1, alpha, beta)
-		if nextPos.better(abscore, score) {
+		if p.better(abscore, score) {
 			moveToReturn = m
 			score = abscore
 		}
-		if nextPos.Turn() == chess.White {
-			if nextPos.better(score, alpha) {
+		if p.Turn() == chess.White {
+			if p.better(score, alpha) {
 				alpha = score
 			}
 		} else {
-			if nextPos.better(score, beta) {
+			if p.better(score, beta) {
 				beta = score
 			}
 		}
@@ -84,9 +86,9 @@ func (p *Position) better(score1, score2 int) bool {
 
 func (p *Position) MAX() int {
 	if p.Turn() == chess.White {
-		return INF
+		return -INF
 	}
-	return -INF
+	return INF
 }
 
 /*

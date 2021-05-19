@@ -13,8 +13,6 @@ func AlphaBetaGame(playerColor chess.Color, depth int) {
 		pos := game.GetPosition()
 		fmt.Println(pos.GetBoard().Draw())
 		if pos.Turn() == playerColor {
-			playerPossibleMoves := pos.ValidMoves()
-			fmt.Printf("Possible moves: %q\n", playerPossibleMoves)
 			for {
 				mv := getMove()
 				err := game.MoveStr(mv)

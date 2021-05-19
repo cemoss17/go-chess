@@ -49,8 +49,8 @@ func (p *Position) Score() int {
 
 	var score int
 
-	for _, p := range p.Board().SquareMap() {
-		score += pieceScore(p)
+	for sq, p := range p.Board().SquareMap() {
+		score += pieceScoreBonus(p, sq)
 	}
 
 	return score
